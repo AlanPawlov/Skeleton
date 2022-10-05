@@ -16,7 +16,7 @@ public class ECSInstaller : MonoInstaller
         _systems
             .Add(new AutodestructableSystem())
             .Add(new RespawnEnemySystem())
-            .Add(new EnemyFollowToPlayerSystem())
+            .Add(new FollowToPlayerSystem())
             .Add(new EnemyStopMarkerSwitcherSystem())
             .Add(new SafeZoneSysem())
             .Add(new StopMovementSystem())
@@ -26,6 +26,13 @@ public class ECSInstaller : MonoInstaller
             .Add(new MeleeAttackSystem())
             .Add(new ProjectileAttackSystem())
             .Add(new DeathSystem())
+            .Add(new DropItemFromDeathInitSystem())
+            .Add(new DropItemFromDeathSystem())
+            .Add(new ClearDropItemFromDeathTagSystem())
+            .Add(new InitEmptyStackSystem())
+            .Add(new PickUpItemSystem())
+            .Add(new ClearEmptyStackTagSystem())
+            .Add(new DropItemFromStackSystem())
             .Add(new BulletFlySystem())
             .Add(new EnemyRotationSystem());
 

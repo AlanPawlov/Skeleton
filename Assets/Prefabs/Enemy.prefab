@@ -2145,7 +2145,7 @@ MonoBehaviour:
     Offset: {x: 0, y: 0.5, z: 0}
     LayerMask:
       serializedVersion: 2
-      m_Bits: 65
+      m_Bits: 1
 --- !u!114 &-3483482744408958242
 MonoBehaviour:
   m_ObjectHideFlags: 0
