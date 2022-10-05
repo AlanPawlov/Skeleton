@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using Unity.Burst;
 using Leopotam.EcsLite;
 
 public class HumanoidMovementSystem : IEcsInitSystem, IEcsRunSystem

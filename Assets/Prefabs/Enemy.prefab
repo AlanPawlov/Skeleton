@@ -1952,6 +1952,9 @@ GameObject:
   - component: {fileID: 8178189703852777026}
   - component: {fileID: 4573356156557770690}
   - component: {fileID: 4685272536226805578}
+  - component: {fileID: 471069024381274771}
+  - component: {fileID: 5165000083857925298}
+  - component: {fileID: -3483482744408958242}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -2110,6 +2113,54 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   value:
     Transform: {fileID: 1158669986299698535}
+--- !u!114 &471069024381274771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1158669986299492163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60282e98b3ef3d448bc2f4c6746fd27a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  value:
+    AttackInterval: 3
+--- !u!114 &5165000083857925298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1158669986299492163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84d7d804e5f2f06499f8832085ba3b5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  value:
+    Damage: 10
+    Distance: 1.5
+    Offset: {x: 0, y: 0.5, z: 0}
+    LayerMask:
+      serializedVersion: 2
+      m_Bits: 65
+--- !u!114 &-3483482744408958242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1158669986299492163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73770bc57cddad8428128993cf9791b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  value:
+    MaxHealth: 50
+    CurHealth: 50
 --- !u!1 &1158669986299493951
 GameObject:
   m_ObjectHideFlags: 0

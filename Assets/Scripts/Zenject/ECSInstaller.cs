@@ -14,12 +14,19 @@ public class ECSInstaller : MonoInstaller
         Init();
         InstallWorld();
         _systems
+            .Add(new AutodestructableSystem())
+            .Add(new RespawnEnemySystem())
             .Add(new EnemyFollowToPlayerSystem())
             .Add(new EnemyStopMarkerSwitcherSystem())
             .Add(new SafeZoneSysem())
             .Add(new StopMovementSystem())
             .Add(new HumanoidMovementSystem())
             .Add(new PlayerRotationSystem())
+            .Add(new AttackTimerSystem())
+            .Add(new MeleeAttackSystem())
+            .Add(new ProjectileAttackSystem())
+            .Add(new DeathSystem())
+            .Add(new BulletFlySystem())
             .Add(new EnemyRotationSystem());
 
         _lateUpdateSystems
