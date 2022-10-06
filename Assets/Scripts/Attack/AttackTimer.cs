@@ -4,5 +4,5 @@ using System;
 public struct AttackTimer
 {
     public DateTime LastAttackTime;
-    public int AttackInterval;
+    public float AttackInterval;
 }

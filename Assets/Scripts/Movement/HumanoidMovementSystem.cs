@@ -21,6 +21,11 @@ public class HumanoidMovementSystem : IEcsInitSystem, IEcsRunSystem
 
     public void Run(IEcsSystems systems)
     {
+        var sharedData = systems.GetShared<ECSSharedData>();
+        if (sharedData.IsPause || sharedData.IsPlayerDeath)
+        {
+            return;
+        }
         var world = systems.GetWorld();
         var movementFilter = world.Filter<HumanoidMovementComponent>().Inc<TransformComponent>()
             .Inc<InputComponent>().End();

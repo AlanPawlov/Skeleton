@@ -7,14 +7,14 @@ public class MeleeAttackSystem : IEcsRunSystem
     public void Run(IEcsSystems systems)
     {
         var world = systems.GetWorld();
-        var meleeFilter = world.Filter<ReadyToAttack>().Inc<MeleeAttack>()
-            .Inc<TransformComponent>().Exc<Death>().End();
-        var heathFilter = world.Filter<Health>().Inc<TransformComponent>().End();
+        var meleeFilter = world.Filter<AttackTimerReady>().Inc<ReadyToAttack>()
+            .Inc<MeleeAttack>().Inc<TransformComponent>().Exc<Death>().End();
+        var healthFilter = world.Filter<Health>().Inc<TransformComponent>().End();
 
         var timerPool = world.GetPool<AttackTimer>();
         var healthPool = world.GetPool<Health>();
         var transformPool = world.GetPool<TransformComponent>();
-        var completeTimerPool = world.GetPool<ReadyToAttack>();
+        var completeTimerPool = world.GetPool<AttackTimerReady>();
         var meleePool = world.GetPool<MeleeAttack>();
 
         foreach (var meleeEntity in meleeFilter)
@@ -29,7 +29,7 @@ public class MeleeAttackSystem : IEcsRunSystem
 
             if (hit)
             {
-                foreach (var e in heathFilter)
+                foreach (var e in healthFilter)
                 {
                     var transform = transformPool.Get(e);
                     if (hitInfo.transform == transform.Transform)
@@ -38,7 +38,6 @@ public class MeleeAttackSystem : IEcsRunSystem
                         health.CurHealth -= melee.Damage;
                         timer.LastAttackTime = DateTime.Now;
                         completeTimerPool.Del(meleeEntity);
-                        Debug.Log($"Melee hit: {transform.Transform.gameObject.name} {health.CurHealth}");
                     }
                 }
             }

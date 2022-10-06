@@ -13,11 +13,11 @@ public class ProjectileAttackSystem : IEcsInitSystem, IEcsRunSystem
     public void Run(IEcsSystems systems)
     {
         var world = systems.GetWorld();
-        var filter = world.Filter<ReadyToAttack>()
-            .Inc<ProjectileAttack>().Inc<TransformComponent>().End();
+        var filter = world.Filter<AttackTimerReady>().Inc<ReadyToAttack>()
+            .Inc<ProjectileAttack>().Inc<TransformComponent>().Exc<Death>().End();
         var timerPool = world.GetPool<AttackTimer>();
         var transformPool = world.GetPool<TransformComponent>();
-        var completeTimerPool = world.GetPool<ReadyToAttack>();
+        var completeTimerPool = world.GetPool<AttackTimerReady>();
         var attackPool = world.GetPool<ProjectileAttack>();
 
         foreach (var e in filter)

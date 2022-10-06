@@ -6,6 +6,11 @@ public class BulletFlySystem : IEcsRunSystem
 {
     public void Run(IEcsSystems systems)
     {
+        var sharedData = systems.GetShared<ECSSharedData>();
+        if (sharedData.IsPause || sharedData.IsPlayerDeath)
+        {
+            return;
+        }
         var world = systems.GetWorld();
         var bulletComponentFilter = world.Filter<Bullet>().Inc<TransformComponent>().End();
         var healthFilter = world.Filter<Health>().Inc<TransformComponent>()
@@ -19,7 +24,7 @@ public class BulletFlySystem : IEcsRunSystem
             ref var transform = ref transformPool.Get(bulletEntity);
             var bullet = bulletPool.Get(bulletEntity);
             var hit = Physics.SphereCast(transform.Transform.position, bullet.Radius,
-                transform.Transform.TransformDirection(Vector3.forward), out RaycastHit hitInfo);
+                transform.Transform.TransformDirection(Vector3.forward), out RaycastHit hitInfo, bullet.Radius);
 
             if (hit)
             {
@@ -34,6 +39,7 @@ public class BulletFlySystem : IEcsRunSystem
                         break;
                     }
                 }
+                Debug.Log(hitInfo.transform.gameObject.name);
                 Object.Destroy(transform.Transform.gameObject);
                 world.DelEntity(bulletEntity);
                 return;

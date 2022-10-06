@@ -1,40 +1,49 @@
 using Zenject;
 using Leopotam.EcsLite;
 using Voody.UniLeo.Lite;
+using UnityEngine;
 
 public class ECSInstaller : MonoInstaller
 {
+    [SerializeField]
+    private DeathWindow _deathWindow;
+    [SerializeField]
+    private PauseWindow _pauseWindow;
+    private ECSSharedData _sharedData;
     private EcsWorld _world;
     private EcsSystems _systems;
     private EcsSystems _lateUpdateSystems;
-    private EcsSystems _fixedUpdateSystems;
 
-    public override void InstallBindings()
+
+    private void Awake()
     {
-        Init();
-        InstallWorld();
         _systems
-            .Add(new AutodestructableSystem())
-            .Add(new RespawnEnemySystem())
-            .Add(new FollowToPlayerSystem())
-            .Add(new EnemyStopMarkerSwitcherSystem())
-            .Add(new SafeZoneSysem())
-            .Add(new StopMovementSystem())
-            .Add(new HumanoidMovementSystem())
-            .Add(new PlayerRotationSystem())
-            .Add(new AttackTimerSystem())
-            .Add(new MeleeAttackSystem())
-            .Add(new ProjectileAttackSystem())
-            .Add(new DeathSystem())
-            .Add(new DropItemFromDeathInitSystem())
-            .Add(new DropItemFromDeathSystem())
-            .Add(new ClearDropItemFromDeathTagSystem())
-            .Add(new InitEmptyStackSystem())
-            .Add(new PickUpItemSystem())
-            .Add(new ClearEmptyStackTagSystem())
-            .Add(new DropItemFromStackSystem())
-            .Add(new BulletFlySystem())
-            .Add(new EnemyRotationSystem());
+           .Add(new AutodestructableSystem())
+           .Add(new RespawnEnemySystem())
+           .Add(new FollowToPlayerSystem())
+           .Add(new EnemyStopMarkerSwitcherSystem())
+           .Add(new SafeZoneSysem())
+           .Add(new StopMovementSystem())
+           .Add(new HumanoidMovementSystem())
+           .Add(new PlayerRotationSystem())
+           .Add(new AttackTimerSystem())
+           .Add(new InitReadyToAttackSystem())
+           .Add(new MeleeAttackSystem())
+           .Add(new ProjectileAttackSystem())
+           .Add(new ClearReadyToAttackSystem())
+           .Add(new DeathSystem())
+           .Add(new DropItemFromDeathInitSystem())
+           .Add(new DropItemFromDeathSystem())
+           .Add(new ClearDropItemFromDeathTagSystem())
+           .Add(new InitEmptyStackSystem())
+           .Add(new PickUpItemSystem())
+           .Add(new ClearEmptyStackTagSystem())
+           .Add(new DropItemFromStackSystem())
+           .Add(new BulletFlySystem())
+           .Add(new EnemyRotationSystem())
+           .Add(new UpdateHudSystem())
+           .Add(new PauseSystem(_pauseWindow))
+           .Add(new DeathWindowSystem(_deathWindow));
 
         _lateUpdateSystems
             .Add(new ThirdPersonCameraSystem());
@@ -42,11 +51,15 @@ public class ECSInstaller : MonoInstaller
         _systems.ConvertScene();
         _systems.Init();
 
-        _lateUpdateSystems
-            .Init();
+        _lateUpdateSystems.Init();
+    }
 
-        _fixedUpdateSystems
-            .Init();
+    public override void InstallBindings()
+    {
+        Init();
+        InstallWorld();
+        InstallSystems();
+        InstallSharedData();
     }
 
     private void InstallWorld()
@@ -56,13 +69,28 @@ public class ECSInstaller : MonoInstaller
             .FromInstance(_world)
             .AsSingle();
     }
+    private void InstallSystems()
+    {
+        Container
+            .Bind<EcsSystems>()
+            .FromInstance(_systems)
+            .AsSingle();
+    }
+
+    private void InstallSharedData()
+    {
+        Container
+            .Bind<ECSSharedData>()
+            .FromInstance(_sharedData)
+            .AsSingle();
+    }
 
     private void Init()
     {
+        _sharedData = new ECSSharedData();
         _world = new EcsWorld();
-        _systems = new EcsSystems(_world);
+        _systems = new EcsSystems(_world, _sharedData);
         _lateUpdateSystems = new EcsSystems(_world);
-        _fixedUpdateSystems = new EcsSystems(_world);
     }
 
     private void Update()
@@ -73,11 +101,6 @@ public class ECSInstaller : MonoInstaller
     private void LateUpdate()
     {
         _lateUpdateSystems?.Run();
-    }
-
-    private void FixedUpdate()
-    {
-        _fixedUpdateSystems?.Run();
     }
 
     private void OnDestroy()
@@ -92,12 +115,6 @@ public class ECSInstaller : MonoInstaller
         {
             _lateUpdateSystems.Destroy();
             _lateUpdateSystems = null;
-        }
-
-        if (_fixedUpdateSystems != null)
-        {
-            _fixedUpdateSystems.Destroy();
-            _fixedUpdateSystems = null;
         }
 
         if (_world != null)

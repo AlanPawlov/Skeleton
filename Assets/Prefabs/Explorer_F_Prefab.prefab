@@ -528,6 +528,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84e61fbd9eb9bda41a123cf61bd6e36a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  value:
+    Move: {x: 0, y: 0}
+    Look: {x: 0, y: 0}
+    Jump: 0
+    Shot: 0
+    Sprint: 0
+    Crouch: 0
 --- !u!114 &5458668959579109589
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -632,7 +639,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value:
-    AttackInterval: 3
+    AttackInterval: 1
 --- !u!114 &1366486846
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -660,8 +667,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value:
-    MaxHealth: 50
-    CurHealth: 50
+    MaxHealth: 350
+    CurHealth: 350
 --- !u!114 &445749211213385620
 MonoBehaviour:
   m_ObjectHideFlags: 0
