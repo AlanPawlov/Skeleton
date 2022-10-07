@@ -1,8 +1,7 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 
 [System.Serializable]
-public struct ProjectileAttack
+public struct ProjectileWeapon
 {
     public Vector3 Offset;
 }

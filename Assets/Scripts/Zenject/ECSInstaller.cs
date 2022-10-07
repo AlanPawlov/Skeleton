@@ -18,6 +18,8 @@ public class ECSInstaller : MonoInstaller
     private void Awake()
     {
         _systems
+           .Add(new InitDropZoneMarkerSystem())
+           .Add(new InitSafeZoneMarkerSystem())
            .Add(new AutodestructableSystem())
            .Add(new RespawnEnemySystem())
            .Add(new FollowToPlayerSystem())

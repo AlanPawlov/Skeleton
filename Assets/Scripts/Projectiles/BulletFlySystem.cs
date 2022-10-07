@@ -1,25 +1,33 @@
 ﻿using UnityEngine;
-
 using Leopotam.EcsLite;
 
-public class BulletFlySystem : IEcsRunSystem
+public class BulletFlySystem : IEcsRunSystem, IEcsInitSystem
 {
+    private ECSSharedData _sharedData;
+    private EcsWorld _world;
+    private EcsFilter _bulletComponentFilter;
+    private EcsFilter _healthFilter;
+
+    public void Init(IEcsSystems systems)
+    {
+        _world = systems.GetWorld();
+        _sharedData = systems.GetShared<ECSSharedData>();
+        _bulletComponentFilter = _world.Filter<Bullet>().Inc<TransformComponent>().End();
+        _healthFilter = _world.Filter<Health>().Inc<TransformComponent>()
+            .Exc<Death>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var sharedData = systems.GetShared<ECSSharedData>();
-        if (sharedData.IsPause || sharedData.IsPlayerDeath)
+        if (_sharedData.IsPause || _sharedData.IsPlayerDeath)
         {
             return;
         }
-        var world = systems.GetWorld();
-        var bulletComponentFilter = world.Filter<Bullet>().Inc<TransformComponent>().End();
-        var healthFilter = world.Filter<Health>().Inc<TransformComponent>()
-            .Exc<Death>().End();
-        var healthPool = world.GetPool<Health>();
+        var healthPool = _world.GetPool<Health>();
 
-        var bulletPool = world.GetPool<Bullet>();
-        var transformPool = world.GetPool<TransformComponent>();
-        foreach (var bulletEntity in bulletComponentFilter)
+        var bulletPool = _world.GetPool<Bullet>();
+        var transformPool = _world.GetPool<TransformComponent>();
+        foreach (var bulletEntity in _bulletComponentFilter)
         {
             ref var transform = ref transformPool.Get(bulletEntity);
             var bullet = bulletPool.Get(bulletEntity);
@@ -28,20 +36,18 @@ public class BulletFlySystem : IEcsRunSystem
 
             if (hit)
             {
-                foreach (var e in healthFilter)
+                foreach (var e in _healthFilter)
                 {
                     var targetTransform = transformPool.Get(e);
                     if (hitInfo.transform == targetTransform.Transform)
                     {
                         ref var health = ref healthPool.Get(e);
                         health.CurHealth -= bullet.Damage;
-                        Debug.Log($"Bullet hit: {targetTransform.Transform.gameObject.name} {health.CurHealth}");
                         break;
                     }
                 }
-                Debug.Log(hitInfo.transform.gameObject.name);
                 Object.Destroy(transform.Transform.gameObject);
-                world.DelEntity(bulletEntity);
+                _world.DelEntity(bulletEntity);
                 return;
             }
             var speed = Time.deltaTime * bullet.Speed;

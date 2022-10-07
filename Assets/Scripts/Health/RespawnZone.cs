@@ -1,8 +1,5 @@
-﻿using UnityEngine;
-
-[System.Serializable]
+﻿[System.Serializable]
 public struct RespawnZone
 {
     public float Radius;
-    public Vector3 Center;
 }

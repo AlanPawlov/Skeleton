@@ -3,12 +3,18 @@ using Leopotam.EcsLite;
 
 public class HumanoidMovementSystem : IEcsInitSystem, IEcsRunSystem
 {
+    private ECSSharedData _sharedData;
+    private EcsWorld _world;
+    private EcsFilter _movementFilter;
+
     public void Init(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var movementFilter = world.Filter<HumanoidMovementComponent>().End();
-        var movementPool = world.GetPool<HumanoidMovementComponent>();
-        foreach (var movementEntity in movementFilter)
+        _sharedData = systems.GetShared<ECSSharedData>();
+        _world = systems.GetWorld();
+        _movementFilter = _world.Filter<HumanoidMovementComponent>().Inc<TransformComponent>()
+            .Inc<InputComponent>().End();
+        var movementPool = _world.GetPool<HumanoidMovementComponent>();
+        foreach (var movementEntity in _movementFilter)
         {
             ref var movement = ref movementPool.Get(movementEntity);
             movement.AnimIDSpeed = Animator.StringToHash("Speed");
@@ -21,18 +27,15 @@ public class HumanoidMovementSystem : IEcsInitSystem, IEcsRunSystem
 
     public void Run(IEcsSystems systems)
     {
-        var sharedData = systems.GetShared<ECSSharedData>();
-        if (sharedData.IsPause || sharedData.IsPlayerDeath)
+        if (_sharedData.IsPause || _sharedData.IsPlayerDeath)
         {
             return;
         }
-        var world = systems.GetWorld();
-        var movementFilter = world.Filter<HumanoidMovementComponent>().Inc<TransformComponent>()
-            .Inc<InputComponent>().End();
-        var inputPool = world.GetPool<InputComponent>();
-        var movementPool = world.GetPool<HumanoidMovementComponent>();
-        var transformPool = world.GetPool<TransformComponent>();
-        foreach (var movementEntity in movementFilter)
+
+        var inputPool = _world.GetPool<InputComponent>();
+        var movementPool = _world.GetPool<HumanoidMovementComponent>();
+        var transformPool = _world.GetPool<TransformComponent>();
+        foreach (var movementEntity in _movementFilter)
         {
             ref var input = ref inputPool.Get(movementEntity);
             ref var movement = ref movementPool.Get(movementEntity);

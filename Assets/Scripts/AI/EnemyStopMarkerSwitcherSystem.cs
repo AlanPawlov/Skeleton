@@ -1,26 +1,34 @@
 ﻿using Leopotam.EcsLite;
 using UnityEngine;
 
-public class EnemyStopMarkerSwitcherSystem : IEcsRunSystem
+public class EnemyStopMarkerSwitcherSystem : IEcsRunSystem, IEcsInitSystem
 {
+    private EcsWorld _world;
+    private EcsFilter _enemyFilter;
+    private EcsFilter _playerFilter;
+
+    public void Init(IEcsSystems systems)
+    {
+         _world = systems.GetWorld();
+         _enemyFilter = _world.Filter<HumanoidMovementComponent>().Inc<EnemyTag>()
+            .Inc<TransformComponent>().End();
+         _playerFilter = _world.Filter<PlayerTag>().Inc<TransformComponent>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var enemyFilter = world.Filter<HumanoidMovementComponent>().Inc<EnemyTag>()
-            .Inc<TransformComponent>().End();
-        var playerFilter = world.Filter<PlayerTag>().Inc<TransformComponent>().End();
-        var transformPool = world.GetPool<TransformComponent>();
-        var stopMarkerPool = world.GetPool<StopMarker>();
+        var transformPool = _world.GetPool<TransformComponent>();
+        var stopMarkerPool = _world.GetPool<StopMarker>();
 
-        foreach (var enemyEntity in enemyFilter)
+        foreach (var enemyEntity in _enemyFilter)
         {
             var enemyTransform = transformPool.Get(enemyEntity).Transform;
 
-            foreach (var playerEntity in playerFilter)
+            foreach (var playerEntity in _playerFilter)
             {
                 var playerTransform = transformPool.Get(playerEntity).Transform;
                 var hasStopMarker = stopMarkerPool.Has(enemyEntity);
-                var isStopDistanceEnter = Vector3.Distance(playerTransform.position, enemyTransform.position) < 1.5f;
+                var isStopDistanceEnter = (playerTransform.position - enemyTransform.position).sqrMagnitude < 1.5f * 1.5f;
                 if (hasStopMarker)
                 {
                     if (!isStopDistanceEnter)

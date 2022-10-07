@@ -1,23 +1,29 @@
 using UnityEngine;
 using Leopotam.EcsLite;
 
-public class ThirdPersonCameraSystem : IEcsRunSystem
+public class ThirdPersonCameraSystem : IEcsRunSystem, IEcsInitSystem
 {
-    //private bool IsCurrentDeviceMouse => _playerInput.currentControlScheme == "KeyboardMouse";
+    private EcsWorld _world;
+    private EcsFilter _cameraComponentFilter;
+    private EcsFilter _inputComponentFilter;
+
+    public void Init(IEcsSystems systems)
+    {
+        _world = systems.GetWorld();
+        _cameraComponentFilter = _world.Filter<ThirdPersonCameraComponent>().End();
+        _inputComponentFilter = _world.Filter<InputComponent>().End();
+    }
 
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var cameraComponentFilter = world.Filter<ThirdPersonCameraComponent>().End();
-        var cameraPool = world.GetPool<ThirdPersonCameraComponent>();
-        var inputComponentFilter = world.Filter<InputComponent>().End();
-        var inputPool = world.GetPool<InputComponent>();
+        var cameraPool = _world.GetPool<ThirdPersonCameraComponent>();
+        var inputPool = _world.GetPool<InputComponent>();
 
-        foreach (var e in inputComponentFilter)
+        foreach (var e in _inputComponentFilter)
         {
             var input = inputPool.Get(e);
 
-            foreach (var camera in cameraComponentFilter)
+            foreach (var camera in _cameraComponentFilter)
             {
                 ref var cameraComponent = ref cameraPool.Get(camera);
                 if (input.Look.sqrMagnitude >= cameraComponent.Threshold && !cameraComponent.LockCameraPosition)

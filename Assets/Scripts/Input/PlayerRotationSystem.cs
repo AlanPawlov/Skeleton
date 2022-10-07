@@ -3,20 +3,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerRotationSystem : IEcsRunSystem
+public class PlayerRotationSystem : IEcsRunSystem, IEcsInitSystem
 {
+    private EcsWorld _world;
+    private EcsFilter _filter;
+
+    public void Init(IEcsSystems systems)
+    {
+        _world = systems.GetWorld();
+        _filter = _world.Filter<HumanoidMovementComponent>().Inc<ThirdPersonCameraComponent>()
+            .Inc<TransformComponent>().Inc<InputComponent>().Inc<PlayerTag>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var filter = world.Filter<HumanoidMovementComponent>().Inc<ThirdPersonCameraComponent>()
-            .Inc<TransformComponent>().Inc<InputComponent>().Inc<PlayerTag>().End();
+        var inputPool = _world.GetPool<InputComponent>();
+        var movementPool = _world.GetPool<HumanoidMovementComponent>();
+        var cameraPool = _world.GetPool<ThirdPersonCameraComponent>();
+        var transformPool = _world.GetPool<TransformComponent>();
 
-        var inputPool = world.GetPool<InputComponent>();
-        var movementPool = world.GetPool<HumanoidMovementComponent>();
-        var cameraPool = world.GetPool<ThirdPersonCameraComponent>();
-        var transformPool = world.GetPool<TransformComponent>();
-
-        foreach (var entity in filter)
+        foreach (var entity in _filter)
         {
             var input = inputPool.Get(entity);
             ref var movement = ref movementPool.Get(entity);

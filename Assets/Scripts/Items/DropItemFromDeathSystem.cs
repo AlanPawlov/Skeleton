@@ -5,19 +5,22 @@ public class DropItemFromDeathSystem : IEcsInitSystem, IEcsRunSystem
 {
     private const string ResourcePath = "ChestTreasure01";
     private GameObject _prefab;
+    private EcsWorld _world;
+    private EcsFilter _filter;
+
     public void Init(IEcsSystems systems)
     {
         _prefab = Resources.Load<GameObject>(ResourcePath);
+        _world = systems.GetWorld();
+        _filter = _world.Filter<DropItemFromDeath>().Inc<TransformComponent>().End();
     }
 
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var filter = world.Filter<DropItemFromDeath>().Inc<TransformComponent>().End();
-        var transformPool = world.GetPool<TransformComponent>();
-        var dropItemPool = world.GetPool<DropItemFromDeath>();
+        var transformPool = _world.GetPool<TransformComponent>();
+        var dropItemPool = _world.GetPool<DropItemFromDeath>();
 
-        foreach (var e in filter)
+        foreach (var e in _filter)
         {
             var deathTransform = transformPool.Get(e);
             Object.Instantiate(_prefab, deathTransform.Transform.position, deathTransform.Transform.rotation);

@@ -637,7 +637,7 @@ TextureImporter:
         serializedVersion: 2
         x: 1525
         y: 1013
-        width: 62
+        width: 61
         height: 63
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -10848,7 +10848,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      PolygonIcons_41: 502498804
+      PolygonIcons_178: -1518119337
       PolygonIcons_196: -793142303
       PolygonIcons_167: -1844835633
       PolygonIcons_366: 549348370
@@ -11357,7 +11357,7 @@ TextureImporter:
       PolygonIcons_307: -1189019844
       PolygonIcons_231: 998337565
       PolygonIcons_354: -79134491
-      PolygonIcons_178: -1518119337
+      PolygonIcons_41: 502498804
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

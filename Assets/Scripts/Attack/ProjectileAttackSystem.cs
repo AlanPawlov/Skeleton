@@ -4,23 +4,27 @@ using UnityEngine;
 
 public class ProjectileAttackSystem : IEcsInitSystem, IEcsRunSystem
 {
+    private const string BulletPath = "Bullet";
     private GameObject _bulletPrefab;
+    private EcsWorld _world;
+    private EcsFilter _filter;
+
     public void Init(IEcsSystems systems)
     {
-        _bulletPrefab = Resources.Load<GameObject>("Bullet");
+        _bulletPrefab = Resources.Load<GameObject>(BulletPath);
+        _world = systems.GetWorld();
+        _filter = _world.Filter<AttackTimerReady>().Inc<ReadyToAttack>()
+            .Inc<ProjectileWeapon>().Inc<TransformComponent>().Exc<Death>().End();
     }
 
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var filter = world.Filter<AttackTimerReady>().Inc<ReadyToAttack>()
-            .Inc<ProjectileAttack>().Inc<TransformComponent>().Exc<Death>().End();
-        var timerPool = world.GetPool<AttackTimer>();
-        var transformPool = world.GetPool<TransformComponent>();
-        var completeTimerPool = world.GetPool<AttackTimerReady>();
-        var attackPool = world.GetPool<ProjectileAttack>();
+        var timerPool = _world.GetPool<AttackTimer>();
+        var transformPool = _world.GetPool<TransformComponent>();
+        var completeTimerPool = _world.GetPool<AttackTimerReady>();
+        var attackPool = _world.GetPool<ProjectileWeapon>();
 
-        foreach (var e in filter)
+        foreach (var e in _filter)
         {
             ref var timer = ref timerPool.Get(e);
             var ownerTransform = transformPool.Get(e);

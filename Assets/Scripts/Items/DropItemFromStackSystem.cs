@@ -1,40 +1,49 @@
-﻿using UnityEngine;
-using Leopotam.EcsLite;
+﻿using Leopotam.EcsLite;
 using System;
 
-public class DropItemFromStackSystem : IEcsRunSystem
+public class DropItemFromStackSystem : IEcsRunSystem, IEcsInitSystem
 {
+    private EcsWorld _world;
+    private EcsFilter _dropZoneFilter;
+    private EcsFilter _itemStackFilter;
+
+    public void Init(IEcsSystems systems)
+    {
+        _world = systems.GetWorld();
+        _dropZoneFilter = _world.Filter<DropItemFromStackZone>()
+            .Inc<TransformComponent>().End();
+        _itemStackFilter = _world.Filter<ItemsStack>().Inc<TransformComponent>()
+            .Exc<EmptyStack>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var dropZoneFilter = world.Filter<DropItemFromStackZone>()
-            .Inc<TransformComponent>().End();
-        var itemStackFilter = world.Filter<ItemsStack>().Inc<TransformComponent>()
-            .Exc<EmptyStack>().End();
+        var dropZonePool = _world.GetPool<DropItemFromStackZone>();
+        var itemStackPool = _world.GetPool<ItemsStack>();
+        var transformPool = _world.GetPool<TransformComponent>();
+        var emptyStackPool = _world.GetPool<EmptyStack>();
+        var fullStackPool = _world.GetPool<FullStack>();
+        var scoreCounterPool = _world.GetPool<ScoreCounter>();
+        var healthPool = _world.GetPool<Health>();
 
-        var dropZonePool = world.GetPool<DropItemFromStackZone>();
-        var itemStackPool = world.GetPool<ItemsStack>();
-        var transformPool = world.GetPool<TransformComponent>();
-        var emptyStackPool = world.GetPool<EmptyStack>();
-        var fullStackPool = world.GetPool<FullStack>();
-
-        foreach (var dropZoneEntity in dropZoneFilter)
+        foreach (var dropZoneEntity in _dropZoneFilter)
         {
             ref var dropZone = ref dropZonePool.Get(dropZoneEntity);
             var dropZoneTransform = transformPool.Get(dropZoneEntity);
 
-            foreach (var itemStackEntity in itemStackFilter)
+            foreach (var itemStackEntity in _itemStackFilter)
             {
                 var itemTransform = transformPool.Get(itemStackEntity);
-                var distance = Vector3.Distance(itemTransform.Transform.position, dropZoneTransform.Transform.position);
+                var distance = (itemTransform.Transform.position - dropZoneTransform.Transform.position).sqrMagnitude;
                 var stack = itemStackPool.Get(itemStackEntity);
                 var timeCondition = (DateTime.Now - dropZone.LastDropTime).TotalSeconds > dropZone.DropInterval;
-                if (distance <= dropZone.Radius && timeCondition)
+                if (distance <= dropZone.Radius * dropZone.Radius && timeCondition)
                 {
                     var itemEntity = (int)stack.Items.Pop();
                     UnityEngine.Object.Destroy(transformPool.Get(itemEntity).Transform.gameObject);
-                    world.DelEntity(itemEntity);
+                    _world.DelEntity(itemEntity);
                     dropZone.LastDropTime = DateTime.Now;
+                    AddReward(scoreCounterPool, healthPool, dropZone, itemStackEntity);
 
                     if (fullStackPool.Has(itemStackEntity))
                     {
@@ -46,6 +55,37 @@ public class DropItemFromStackSystem : IEcsRunSystem
                     }
                 }
             }
+        }
+    }
+
+    private void AddReward(EcsPool<ScoreCounter> scoreCounterPool, EcsPool<Health> healthPool, DropItemFromStackZone dropZone, int itemStackEntity)
+    {
+        switch (dropZone.RewardType)
+        {
+            case RewardType.Health:
+                AddHealth(healthPool, dropZone, itemStackEntity);
+                break;
+            case RewardType.Score:
+                AddScore(scoreCounterPool, dropZone, itemStackEntity);
+                break;
+        }
+    }
+
+    private void AddScore(EcsPool<ScoreCounter> scoreCounterPool, DropItemFromStackZone dropZone, int itemStackEntity)
+    {
+        if (scoreCounterPool.Has(itemStackEntity))
+        {
+            ref var scoreCounter = ref scoreCounterPool.Get(itemStackEntity);
+            scoreCounter.CurrentScore += dropZone.Reward;
+        }
+    }
+
+    private void AddHealth(EcsPool<Health> healthPool, DropItemFromStackZone dropZone, int itemStackEntity)
+    {
+        if (healthPool.Has(itemStackEntity))
+        {
+            ref var health = ref healthPool.Get(itemStackEntity);
+            health.CurHealth += dropZone.Reward;
         }
     }
 }

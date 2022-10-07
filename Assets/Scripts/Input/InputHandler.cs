@@ -16,22 +16,6 @@ public class InputHandler : MonoBehaviour
     private int _inputEntity;
     private EcsWorld _world;
 
-    private void Awake()
-    {
-        MoveInput.Enable();
-        LookInput.Enable();
-        JumpInput.Enable();
-        ShotInput.Enable();
-        PauseInput.Enable();
-
-        LookInput.started += LookActionOnStarted;
-        LookInput.canceled += LookActionCanceled;
-        JumpInput.started += JumpStarted;
-        ShotInput.started += ShotStarted;
-        PauseInput.started += PauseStarted;
-        ShotInput.canceled += ShotCanceled;
-    }
-
 
     [Inject]
     public void Construct(EcsWorld world)
@@ -48,6 +32,19 @@ public class InputHandler : MonoBehaviour
         {
             _inputEntity = e;
         }
+
+        MoveInput.Enable();
+        LookInput.Enable();
+        JumpInput.Enable();
+        ShotInput.Enable();
+        PauseInput.Enable();
+
+        LookInput.started += LookActionOnStarted;
+        LookInput.canceled += LookActionCanceled;
+        JumpInput.started += JumpStarted;
+        ShotInput.started += ShotStarted;
+        PauseInput.started += PauseStarted;
+        ShotInput.canceled += ShotCanceled;
     }
 
     private void Update()
@@ -84,10 +81,6 @@ public class InputHandler : MonoBehaviour
 
     private void LookActionOnStarted(InputAction.CallbackContext obj)
     {
-        foreach (var e in _filter)
-        {
-            _inputEntity = e;
-        }
         ref var input = ref _pool.Get(_inputEntity);
         input.Look = obj.ReadValue<Vector2>();
     }
@@ -122,6 +115,5 @@ public class InputHandler : MonoBehaviour
         ShotInput.started -= ShotStarted;
         ShotInput.canceled -= ShotStarted;
         PauseInput.started -= PauseStarted;
-
     }
 }

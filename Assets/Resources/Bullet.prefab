@@ -149,7 +149,7 @@ MonoBehaviour:
     Direction: {x: 0, y: 0, z: 0}
     Radius: 0.15
     Speed: 15
-    Damage: 20
+    Damage: 50
 --- !u!114 &5313250530392464384
 MonoBehaviour:
   m_ObjectHideFlags: 0

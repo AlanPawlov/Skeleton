@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 [System.Serializable]
-public struct MeleeAttack
+public struct MeleeWeapon
 {
     public int Damage;
     public float Distance;

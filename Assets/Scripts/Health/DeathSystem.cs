@@ -1,17 +1,24 @@
 ﻿using Leopotam.EcsLite;
 
-public class DeathSystem : IEcsRunSystem
+public class DeathSystem : IEcsRunSystem, IEcsInitSystem
 {
+    private EcsWorld _world;
+    private EcsFilter _healthFilter;
+
+    public void Init(IEcsSystems systems)
+    {
+        _world = systems.GetWorld();
+        _healthFilter = _world.Filter<Health>().Inc<TransformComponent>()
+            .Exc<Death>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var healthFilter = world.Filter<Health>().Inc<TransformComponent>()
-            .Exc<Death>().End();
-        var healthPool = world.GetPool<Health>();
-        var deathPool = world.GetPool<Death>();
-        var transformPool = world.GetPool<TransformComponent>();
+        var healthPool = _world.GetPool<Health>();
+        var deathPool = _world.GetPool<Death>();
+        var transformPool = _world.GetPool<TransformComponent>();
 
-        foreach (var e in healthFilter)
+        foreach (var e in _healthFilter)
         {
             var health = healthPool.Get(e);
             if (health.CurHealth <= 0)

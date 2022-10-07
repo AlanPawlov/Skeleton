@@ -1,17 +1,24 @@
 ﻿using Leopotam.EcsLite;
 using System.Collections;
 
-public class InitEmptyStackSystem : IEcsRunSystem
+public class InitEmptyStackSystem : IEcsRunSystem, IEcsInitSystem
 {
+    private EcsWorld _world;
+    private EcsFilter _itemStackFilter;
+
+    public void Init(IEcsSystems systems)
+    {
+        _world = systems.GetWorld();
+        _itemStackFilter = _world.Filter<ItemsStack>().Exc<FullStack>()
+            .Exc<EmptyStack>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var itemStackFilter = world.Filter<ItemsStack>().Exc<FullStack>()
-            .Exc<EmptyStack>().End();
-        var itemStackPool = world.GetPool<ItemsStack>();
-        var emptyStackPool = world.GetPool<EmptyStack>();
+        var itemStackPool = _world.GetPool<ItemsStack>();
+        var emptyStackPool = _world.GetPool<EmptyStack>();
 
-        foreach (var itemStackEntity in itemStackFilter)
+        foreach (var itemStackEntity in _itemStackFilter)
         {
             ref var itemStack = ref itemStackPool.Get(itemStackEntity);
             if (itemStack.Items == null)

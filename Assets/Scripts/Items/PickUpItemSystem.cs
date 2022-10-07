@@ -1,33 +1,41 @@
 ﻿using UnityEngine;
 using Leopotam.EcsLite;
 
-public class PickUpItemSystem : IEcsRunSystem
+public class PickUpItemSystem : IEcsRunSystem, IEcsInitSystem
 {
+    private EcsWorld _world;
+    private EcsFilter _itemFilter;
+    private EcsFilter _itemStackFilter;
+
+    public void Init(IEcsSystems systems)
+    {
+        _world = systems.GetWorld();
+        _itemFilter = _world.Filter<Item>().Inc<TransformComponent>()
+            .Exc<ItemInStack>().End();
+        _itemStackFilter = _world.Filter<ItemsStack>().Inc<TransformComponent>()
+            .Exc<FullStack>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var itemFilter = world.Filter<Item>().Inc<TransformComponent>()
-            .Exc<ItemInStack>().End();
-        var itemStackFilter = world.Filter<ItemsStack>().Inc<TransformComponent>()
-            .Exc<FullStack>().End();
-        var itemPool = world.GetPool<Item>();
-        var itemStackPool = world.GetPool<ItemsStack>();
-        var transformPool = world.GetPool<TransformComponent>();
-        var itemInStack = world.GetPool<ItemInStack>();
-        var fullStackPool = world.GetPool<FullStack>();
+        var itemPool = _world.GetPool<Item>();
+        var itemStackPool = _world.GetPool<ItemsStack>();
+        var transformPool = _world.GetPool<TransformComponent>();
+        var itemInStack = _world.GetPool<ItemInStack>();
+        var fullStackPool = _world.GetPool<FullStack>();
 
-        foreach (var itemStackEntity in itemStackFilter)
+        foreach (var itemStackEntity in _itemStackFilter)
         {
             var playerTransform = transformPool.Get(itemStackEntity);
             ref var itemStack = ref itemStackPool.Get(itemStackEntity);
 
-            foreach (var itemEntity in itemFilter)
+            foreach (var itemEntity in _itemFilter)
             {
                 ref var itemTransform = ref transformPool.Get(itemEntity);
                 var item = itemPool.Get(itemEntity);
-                var distance = Vector3.Distance(playerTransform.Transform.position, itemTransform.Transform.position);
+                var distance = (playerTransform.Transform.position - itemTransform.Transform.position).sqrMagnitude;
 
-                if (distance < 1)
+                if (distance < item.SqrPickUpDistance)
                 {
                     itemTransform.Transform.parent = itemStack.Parent;
                     itemTransform.Transform.position = itemStack.Parent.position + itemStack.Items.Count * item.Offset;

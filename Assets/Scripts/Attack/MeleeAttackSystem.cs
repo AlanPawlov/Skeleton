@@ -2,22 +2,29 @@
 using Leopotam.EcsLite;
 using UnityEngine;
 
-public class MeleeAttackSystem : IEcsRunSystem
+public class MeleeAttackSystem : IEcsRunSystem, IEcsInitSystem
 {
+    private EcsWorld _world;
+    private EcsFilter _meleeFilter;
+    private EcsFilter _healthFilter;
+
+    public void Init(IEcsSystems systems)
+    {
+        _world = systems.GetWorld();
+        _meleeFilter = _world.Filter<AttackTimerReady>().Inc<ReadyToAttack>()
+            .Inc<MeleeWeapon>().Inc<TransformComponent>().Exc<Death>().End();
+        _healthFilter = _world.Filter<Health>().Inc<TransformComponent>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var meleeFilter = world.Filter<AttackTimerReady>().Inc<ReadyToAttack>()
-            .Inc<MeleeAttack>().Inc<TransformComponent>().Exc<Death>().End();
-        var healthFilter = world.Filter<Health>().Inc<TransformComponent>().End();
+        var timerPool = _world.GetPool<AttackTimer>();
+        var healthPool = _world.GetPool<Health>();
+        var transformPool = _world.GetPool<TransformComponent>();
+        var completeTimerPool = _world.GetPool<AttackTimerReady>();
+        var meleePool = _world.GetPool<MeleeWeapon>();
 
-        var timerPool = world.GetPool<AttackTimer>();
-        var healthPool = world.GetPool<Health>();
-        var transformPool = world.GetPool<TransformComponent>();
-        var completeTimerPool = world.GetPool<AttackTimerReady>();
-        var meleePool = world.GetPool<MeleeAttack>();
-
-        foreach (var meleeEntity in meleeFilter)
+        foreach (var meleeEntity in _meleeFilter)
         {
             ref var timer = ref timerPool.Get(meleeEntity);
             var ownerTransform = transformPool.Get(meleeEntity);
@@ -29,7 +36,7 @@ public class MeleeAttackSystem : IEcsRunSystem
 
             if (hit)
             {
-                foreach (var e in healthFilter)
+                foreach (var e in _healthFilter)
                 {
                     var transform = transformPool.Get(e);
                     if (hitInfo.transform == transform.Transform)

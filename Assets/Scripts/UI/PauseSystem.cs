@@ -1,28 +1,35 @@
 using Leopotam.EcsLite;
 using Zenject;
 
-public class PauseSystem : IEcsRunSystem
+public class PauseSystem : IEcsRunSystem, IEcsInitSystem
 {
     private PauseWindow _pauseWindow;
-    
+    private ECSSharedData _sharedData;
+    private EcsWorld _world;
+    private EcsFilter _filter;
+
     public PauseSystem(PauseWindow pauseWindow)
     {
         _pauseWindow = pauseWindow;
     }
 
+    public void Init(IEcsSystems systems)
+    {
+        _sharedData = systems.GetShared<ECSSharedData>();
+        _world = systems.GetWorld();
+        _filter = _world.Filter<InputComponent>().Inc<PlayerTag>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var sharedData = systems.GetShared<ECSSharedData>();
-        var world = systems.GetWorld();
-        var filter = world.Filter<InputComponent>().Inc<PlayerTag>().End();
-        var pool = world.GetPool<InputComponent>();
-        foreach (var e in filter)
+        var pool = _world.GetPool<InputComponent>();
+        foreach (var e in _filter)
         {
             ref var input = ref pool.Get(e);
             if (input.Pause && !_pauseWindow.IsActive)
             {
                 input.Pause = false;
-                sharedData.IsPause = true;
+                _sharedData.IsPause = true;
                 _pauseWindow.Show();
             }
         }

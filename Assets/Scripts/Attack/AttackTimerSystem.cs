@@ -1,23 +1,30 @@
 ﻿using System;
 using Leopotam.EcsLite;
 
-public class AttackTimerSystem : IEcsRunSystem
+public class AttackTimerSystem : IEcsRunSystem, IEcsInitSystem
 {
+    private ECSSharedData _sharedData;
+    private EcsWorld _world;
+    private EcsFilter _filter;
+
+    public void Init(IEcsSystems systems)
+    {
+        _sharedData = systems.GetShared<ECSSharedData>();
+        _world = systems.GetWorld();
+        _filter = _world.Filter<AttackTimer>().Exc<AttackTimerReady>()
+                .Exc<Death>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var sharedData = systems.GetShared<ECSSharedData>();
-        if (sharedData.IsPause||sharedData.IsPlayerDeath)
+        if (_sharedData.IsPause || _sharedData.IsPlayerDeath)
         {
             return;
         }
 
-        var world = systems.GetWorld();
-        var filter = world.Filter<AttackTimer>().Exc<AttackTimerReady>()
-            .Exc<Death>().End();
-        var timerPool = world.GetPool<AttackTimer>();
-        var completeTimerPool = world.GetPool<AttackTimerReady>();
-
-        foreach (var timerEntity in filter)
+        var timerPool = _world.GetPool<AttackTimer>();
+        var completeTimerPool = _world.GetPool<AttackTimerReady>();
+        foreach (var timerEntity in _filter)
         {
             ref var timer = ref timerPool.Get(timerEntity);
             var canAttack = timer.AttackInterval < (DateTime.Now - timer.LastAttackTime).TotalSeconds;

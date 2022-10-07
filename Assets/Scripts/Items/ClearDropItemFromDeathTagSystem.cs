@@ -1,13 +1,20 @@
 ﻿using Leopotam.EcsLite;
 
-public class ClearDropItemFromDeathTagSystem : IEcsRunSystem
+public class ClearDropItemFromDeathTagSystem : IEcsRunSystem, IEcsInitSystem
 {
+    private EcsWorld _world;
+    private EcsFilter _filter;
+
+    public void Init(IEcsSystems systems)
+    {
+        _world = systems.GetWorld();
+        _filter = _world.Filter<NoDropItemFromDeath>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var filter = world.Filter<NoDropItemFromDeath>().End();
-        var noDropItemPool = world.GetPool<NoDropItemFromDeath>();
-        foreach (var e in filter)
+        var noDropItemPool = _world.GetPool<NoDropItemFromDeath>();
+        foreach (var e in _filter)
         {
             noDropItemPool.Del(e);
         }

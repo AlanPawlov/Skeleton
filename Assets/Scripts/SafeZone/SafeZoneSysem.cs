@@ -1,33 +1,43 @@
 using Leopotam.EcsLite;
 using UnityEngine;
 
-public class SafeZoneSysem : IEcsRunSystem
+public class SafeZoneSysem : IEcsRunSystem, IEcsInitSystem
 {
+    private EcsWorld _world;
+    private EcsFilter _enemyFilter;
+    private EcsFilter _playerFilter;
+    private EcsFilter _safeZoneFilter;
+
+    public void Init(IEcsSystems systems)
+    {
+        _world = systems.GetWorld();
+        _enemyFilter = _world.Filter<HumanoidMovementComponent>().Inc<EnemyTag>()
+            .Inc<TransformComponent>().Exc<StopMarker>().End();
+        _playerFilter = _world.Filter<PlayerTag>().Inc<TransformComponent>().End();
+        _safeZoneFilter = _world.Filter<SquareSafeZone>().Inc<TransformComponent>().End();
+    }
+ 
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var enemyFilter = world.Filter<HumanoidMovementComponent>().Inc<EnemyTag>()
-            .Inc<TransformComponent>().Exc<StopMarker>().End();
-        var playerFilter = world.Filter<PlayerTag>().Inc<TransformComponent>().End();
-        var safeZoneFilter = world.Filter<SquareSafeZone>().End();
-        var transformPool = world.GetPool<TransformComponent>();
-        var stopMarkerPool = world.GetPool<StopMarker>();
-        var safeZonePool = world.GetPool<SquareSafeZone>();
+        var transformPool = _world.GetPool<TransformComponent>();
+        var stopMarkerPool = _world.GetPool<StopMarker>();
+        var safeZonePool = _world.GetPool<SquareSafeZone>();
 
         var safeZonePosition = Vector3.zero;
         var edgeZoneLenght = 0f;
-        foreach (var safeZoneEntity in safeZoneFilter)
+        foreach (var safeZoneEntity in _safeZoneFilter)
         {
             var safeZone = safeZonePool.Get(safeZoneEntity);
-            safeZonePosition = safeZone.Center;
+            var safeZoneTransform = transformPool.Get(safeZoneEntity);
+            safeZonePosition = safeZoneTransform.Transform.position;
             edgeZoneLenght = safeZone.EdgeLenght;
         }
 
-        foreach (var enemyEntity in enemyFilter)
+        foreach (var enemyEntity in _enemyFilter)
         {
             var enemyTransform = transformPool.Get(enemyEntity).Transform;
 
-            foreach (var playerEntity in playerFilter)
+            foreach (var playerEntity in _playerFilter)
             {
                 var playerPosition = transformPool.Get(playerEntity).Transform.position;
                 if (IsPlayerInSafeZone(playerPosition, safeZonePosition, edgeZoneLenght))

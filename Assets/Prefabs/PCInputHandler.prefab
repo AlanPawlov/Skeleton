@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3012808885179533835}
   - component: {fileID: 1616070769237131581}
   m_Layer: 0
-  m_Name: InputHandler
+  m_Name: PCInputHandler
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -127,3 +127,21 @@ MonoBehaviour:
       m_Action: Jump Input
       m_Flags: 0
     m_Flags: 1
+  ShotInput:
+    m_Name: Shot Input
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 43efd12b-7d79-42fc-9811-933a602d0b76
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  PauseInput:
+    m_Name: Pause Input
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: c39f86cb-1ffa-4334-b542-2cfa65703ef1
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0

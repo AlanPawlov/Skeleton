@@ -129,6 +129,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   value:
     Offset: {x: 0, y: 0.5, z: 0}
+    SqrPickUpDistance: 2.25
 --- !u!1 &6316172942062962359
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,21 +1,28 @@
 using Leopotam.EcsLite;
 using UnityEngine;
 
-public class EnemyRotationSystem : IEcsRunSystem
+public class EnemyRotationSystem : IEcsRunSystem, IEcsInitSystem
 {
+    private EcsWorld _world;
+    private EcsFilter _enemyFilter;
+    private EcsFilter _playerFilter;
+
+    public void Init(IEcsSystems systems)
+    {
+        _world = systems.GetWorld();
+        _enemyFilter = _world.Filter<HumanoidMovementComponent>().Inc<EnemyTag>()
+                             .Inc<TransformComponent>().End();
+        _playerFilter = _world.Filter<PlayerTag>().Inc<TransformComponent>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var enemyFilter = world.Filter<HumanoidMovementComponent>().Inc<EnemyTag>()
-            .Inc<TransformComponent>().End();
-        var playerFilter = world.Filter<PlayerTag>().Inc<TransformComponent>().End();
+        var movementPool = _world.GetPool<HumanoidMovementComponent>();
+        var transformPool = _world.GetPool<TransformComponent>();
 
-        var movementPool = world.GetPool<HumanoidMovementComponent>();
-        var transformPool = world.GetPool<TransformComponent>();
-
-        foreach (var enemyEntity in enemyFilter)
+        foreach (var enemyEntity in _enemyFilter)
         {
-            foreach (var playerEntity in playerFilter)
+            foreach (var playerEntity in _playerFilter)
             {
                 var playerTransform = transformPool.Get(playerEntity);
                 ref var movement = ref movementPool.Get(enemyEntity);

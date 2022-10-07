@@ -1,17 +1,24 @@
 ﻿using UnityEngine;
 using Leopotam.EcsLite;
 
-public class DropItemFromDeathInitSystem : IEcsRunSystem
+public class DropItemFromDeathInitSystem : IEcsRunSystem, IEcsInitSystem
 {
+    private EcsWorld _world;
+    private EcsFilter _filter;
+
+    public void Init(IEcsSystems systems)
+    {
+        _world = systems.GetWorld();
+        _filter = _world.Filter<Death>().Exc<DropItemFromDeath>()
+            .Exc<NoDropItemFromDeath>().Exc<PlayerTag>().End();
+    }
+
     public void Run(IEcsSystems systems)
     {
-        var world = systems.GetWorld();
-        var filter = world.Filter<Death>().Exc<DropItemFromDeath>()
-            .Exc<NoDropItemFromDeath>().Exc<PlayerTag>().End();
-        var dropItemPool = world.GetPool<DropItemFromDeath>();
-        var noDropItemPool = world.GetPool<NoDropItemFromDeath>();
+        var dropItemPool = _world.GetPool<DropItemFromDeath>();
+        var noDropItemPool = _world.GetPool<NoDropItemFromDeath>();
 
-        foreach (var e in filter)
+        foreach (var e in _filter)
         {
             if (RandomDrop())
             {
