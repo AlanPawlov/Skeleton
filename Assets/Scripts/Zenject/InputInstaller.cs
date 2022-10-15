@@ -10,7 +10,7 @@ public class InputInstaller : MonoBehaviour
     {
 #if UNITY_ANDROID
         _pcInput.gameObject.SetActive(false);
-#elif UNITY_EDITOR || UNITY_STANDALONE_WIN
+#elif UNITY_EDITOR || UNITY_STANDALONE_WIN || UNITY_WEBGL
         _mobileInput.gameObject.SetActive(false);
 #endif
     }
