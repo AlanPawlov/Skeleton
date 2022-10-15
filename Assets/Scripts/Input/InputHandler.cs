@@ -58,14 +58,12 @@ public class InputHandler : MonoBehaviour
     {
         ref var input = ref _pool.Get(_inputEntity);
         input.Shot = ShotInput.ReadValue<float>() > 0 ? true : false;
-        Debug.Log(input.Shot);
     }
 
     private void ShotCanceled(InputAction.CallbackContext obj)
     {
         ref var input = ref _pool.Get(_inputEntity);
         input.Shot = ShotInput.ReadValue<float>() > 0 ? true : false;
-        Debug.Log(input.Shot);
     }
     private void JumpStarted(InputAction.CallbackContext obj)
     {

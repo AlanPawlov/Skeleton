@@ -9,11 +9,12 @@ public class ECSInstaller : MonoInstaller
     private DeathWindow _deathWindow;
     [SerializeField]
     private PauseWindow _pauseWindow;
+    [SerializeField]
+    private AudioClip _audioClip;
     private ECSSharedData _sharedData;
     private EcsWorld _world;
     private EcsSystems _systems;
     private EcsSystems _lateUpdateSystems;
-
 
     private void Awake()
     {
@@ -90,6 +91,8 @@ public class ECSInstaller : MonoInstaller
     private void Init()
     {
         _sharedData = new ECSSharedData();
+        _sharedData._shotAudio = _audioClip;
+
         _world = new EcsWorld();
         _systems = new EcsSystems(_world, _sharedData);
         _lateUpdateSystems = new EcsSystems(_world);

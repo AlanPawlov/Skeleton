@@ -8,6 +8,7 @@ public class ProjectileAttackSystem : IEcsInitSystem, IEcsRunSystem
     private GameObject _bulletPrefab;
     private EcsWorld _world;
     private EcsFilter _filter;
+    private ECSSharedData _sharedData;
 
     public void Init(IEcsSystems systems)
     {
@@ -15,6 +16,7 @@ public class ProjectileAttackSystem : IEcsInitSystem, IEcsRunSystem
         _world = systems.GetWorld();
         _filter = _world.Filter<AttackTimerReady>().Inc<ReadyToAttack>()
             .Inc<ProjectileWeapon>().Inc<TransformComponent>().Exc<Death>().End();
+        _sharedData = systems.GetShared<ECSSharedData>();
     }
 
     public void Run(IEcsSystems systems)
@@ -30,6 +32,7 @@ public class ProjectileAttackSystem : IEcsInitSystem, IEcsRunSystem
             var ownerTransform = transformPool.Get(e);
             var attackComponent = attackPool.Get(e);
             var offset = ownerTransform.Transform.TransformDirection(attackComponent.Offset);
+            AudioSource.PlayClipAtPoint(_sharedData._shotAudio, ownerTransform.Transform.position, 1);
             UnityEngine.Object.Instantiate(_bulletPrefab, ownerTransform.Transform.position + offset,
                 ownerTransform.Transform.localRotation);
             timer.LastAttackTime = DateTime.Now;

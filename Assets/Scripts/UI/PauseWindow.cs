@@ -27,15 +27,17 @@ public class PauseWindow : BaseWindow
     public override void Show()
     {
         base.Show();
+        Cursor.lockState = CursorLockMode.None;
         _continueButton.onClick.AddListener(Hide);
         _restartButton.onClick.AddListener(RestartButtonClick);
     }
 
     public override void Hide()
     {
-        base.Hide();
+        Cursor.lockState = CursorLockMode.Locked;
         _continueButton.onClick.RemoveListener(Hide);
         _restartButton.onClick.RemoveListener(RestartButtonClick);
-        _sharedData.IsPause = false; 
+        _sharedData.IsPause = false;
+        base.Hide();
     }
 }

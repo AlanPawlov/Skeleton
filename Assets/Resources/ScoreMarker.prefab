@@ -150,7 +150,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Score increase drop zone
+  m_text: "\u0422\u043E\u0447\u043A\u0430 \u043E\u0431\u043C\u0435\u043D\u0430 \u0441\u043E\u043A\u0440\u043E\u0432\u0438\u0449
+    \u043D\u0430 \u0434\u0435\u043D\u044C\u0433\u0438"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

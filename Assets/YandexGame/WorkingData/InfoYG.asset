@@ -27,8 +27,8 @@ MonoBehaviour:
     name: TranslateCSV
   languages:
     ru: 1
-    en: 1
-    tr: 1
+    en: 0
+    tr: 0
     az: 0
     be: 0
     he: 0
@@ -83,4 +83,4 @@ MonoBehaviour:
     de: []
     hi: []
   SDKStartDelay: 0
-  debug: 1
+  debug: 0
